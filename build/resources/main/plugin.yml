@@ -1,0 +1,8 @@
+name: Skyblock
+version: '1.0.0'
+main: dev.soulfur.skyblock.Skyblock
+api-version: 1.21
+commands:
+  profiles:
+    description: Manage your Skyblock profiles.
+    usage: /profiles
