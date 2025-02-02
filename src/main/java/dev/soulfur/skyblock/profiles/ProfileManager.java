@@ -1,9 +1,15 @@
 package dev.soulfur.skyblock.profiles;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+
+import dev.soulfur.skyblock.islands.SkyblockGenerator;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import dev.soulfur.skyblock.Skyblock;
 
@@ -39,11 +45,24 @@ public class ProfileManager {
     }
 
     public String getActiveProfileId(UUID playerUUID) {
-        return plugin.getDatabase().getActiveProfileId(playerUUID); // Call the Database method
+        return plugin.getDatabase().getActiveProfileId(playerUUID);
     }
 
     public void setActiveProfile(UUID playerUUID, String profileName) {
+        // Unload the previous active profile's island
+        String previousProfileId = getActiveProfileId(playerUUID);
+        if (previousProfileId != null) {
+            unloadIsland(previousProfileId);
+        }
+
+        // Set the new active profile
         plugin.getDatabase().setActiveProfile(playerUUID, profileName);
+
+        // Load the new active profile's island
+        String newProfileId = getActiveProfileId(playerUUID);
+        if (newProfileId != null) {
+            loadIsland(newProfileId);
+        }
     }
 
     public int getProfileCount(UUID playerUUID) {
@@ -60,5 +79,23 @@ public class ProfileManager {
     private String getRandomProfileName() {
         Random random = new Random();
         return profileNames.get(random.nextInt(profileNames.size()));
+    }
+
+    private void unloadIsland(String profileId) {
+        String worldName = "island_" + profileId;
+        World world = Bukkit.getWorld(worldName);
+        if (world != null) {
+            Bukkit.unloadWorld(world, true); // Unload the world and save changes
+        }
+    }
+
+    private void loadIsland(String profileId) {
+        String worldName = "island_" + profileId;
+        File islandDir = new File(plugin.getIslandsDir(), worldName);
+        if (islandDir.exists()) {
+            WorldCreator creator = new WorldCreator(worldName);
+            creator.generator(new SkyblockGenerator());
+            Bukkit.createWorld(creator);
+        }
     }
 }

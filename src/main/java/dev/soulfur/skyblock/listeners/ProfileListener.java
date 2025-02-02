@@ -22,7 +22,7 @@ public class ProfileListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals(ColorUtils.translateColorCodes("Profile Management"))) {
+        if (event.getView().getTitle().equals(ColorUtils.translateColorCodes("&6Profile Management"))) {
             event.setCancelled(true);
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem == null) return;
